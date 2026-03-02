@@ -4,6 +4,7 @@ import type { Metadata } from "next";
 import SteuerberaterCard from "@/components/SteuerberaterCard";
 
 export const revalidate = 21600; // 6 hours
+export const dynamicParams = false;
 
 export async function generateStaticParams() {
   const staedte = await prisma.stadt.findMany({ select: { slug: true } });

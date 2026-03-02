@@ -10,15 +10,20 @@ export async function POST(req: NextRequest) {
   const session = await getServerSession(authOptions);
   if (!session) return NextResponse.json({ error: "Nicht angemeldet" }, { status: 401 });
 
-  const userId = (session.user as any).id;
+  const userId = session.user.id;
   const profile = await prisma.steuerberaterProfile.findUnique({ where: { userId } });
   if (!profile) return NextResponse.json({ error: "Profil nicht gefunden" }, { status: 404 });
+
+  // Prevent duplicate subscriptions
+  if (profile.paket === "GOLD" && profile.stripeSubscriptionId) {
+    return NextResponse.json({ error: "Bereits abonniert" }, { status: 409 });
+  }
 
   // Create or retrieve Stripe customer
   let customerId = profile.stripeCustomerId;
   if (!customerId) {
     const customer = await stripe.customers.create({
-      email: session.user?.email!,
+      email: session.user.email,
       metadata: { profileId: profile.id },
     });
     customerId = customer.id;

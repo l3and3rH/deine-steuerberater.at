@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { Paket } from "@prisma/client";
 
 interface Props {
@@ -20,7 +21,7 @@ export default function SteuerberaterCard(props: Props) {
   return (
     <div className={`bg-white rounded-lg border p-5 flex gap-4 ${isPremium ? "border-blue-400 shadow-md" : "border-gray-200"}`}>
       {logo && (
-        <img src={logo} alt={name} className="w-16 h-16 rounded object-cover flex-shrink-0" />
+        <Image src={logo} alt={name} width={64} height={64} className="rounded object-cover flex-shrink-0" />
       )}
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2 mb-1">

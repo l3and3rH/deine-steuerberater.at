@@ -5,7 +5,7 @@ import { redirect } from "next/navigation";
 
 export default async function AdminPage() {
   const session = await getServerSession(authOptions);
-  if ((session?.user as any)?.role !== "ADMIN") redirect("/");
+  if (session?.user?.role !== "ADMIN") redirect("/");
 
   const profiles = await prisma.steuerberaterProfile.findMany({
     orderBy: { createdAt: "desc" },

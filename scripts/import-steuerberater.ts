@@ -1,6 +1,7 @@
 import { PrismaClient } from "@prisma/client";
 import fs from "fs";
 import path from "path";
+import { slugify } from "../src/lib/utils";
 
 const prisma = new PrismaClient();
 
@@ -12,14 +13,6 @@ interface RawEntry {
   telefon: string;
   email: string;
   website: string;
-}
-
-function slugify(text: string): string {
-  return text
-    .toLowerCase()
-    .replace(/ä/g, "ae").replace(/ö/g, "oe").replace(/ü/g, "ue").replace(/ß/g, "ss")
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-|-$/g, "");
 }
 
 async function main() {

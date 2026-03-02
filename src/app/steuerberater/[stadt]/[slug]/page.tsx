@@ -1,8 +1,10 @@
+import Image from "next/image";
 import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 
 export const revalidate = 21600;
+export const dynamicParams = false;
 
 export async function generateStaticParams() {
   const profiles = await prisma.steuerberaterProfile.findMany({
@@ -30,6 +32,10 @@ export default async function ProfilePage({ params }: { params: { slug: string; 
 
   if (!profile) notFound();
 
+  // Ensure this profile is actually linked to the given city
+  const isLinkedToStadt = profile.staedte.some((s) => s.stadt.slug === params.stadt);
+  if (!isLinkedToStadt) notFound();
+
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "LocalBusiness",
@@ -54,7 +60,7 @@ export default async function ProfilePage({ params }: { params: { slug: string; 
         <div className="bg-white rounded-lg border border-gray-200 p-8">
           <div className="flex gap-4 mb-6">
             {profile.logo && (
-              <img src={profile.logo} alt={profile.name} className="w-20 h-20 rounded object-cover" />
+              <Image src={profile.logo} alt={profile.name} width={80} height={80} className="rounded object-cover" />
             )}
             <div>
               <h1 className="text-2xl font-bold text-gray-900">{profile.name}</h1>

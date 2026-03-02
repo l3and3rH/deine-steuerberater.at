@@ -36,7 +36,14 @@ export async function POST(req: NextRequest) {
       include: { stadt: true },
     });
     for (const s of staedte) {
-      await fetch(`${process.env.NEXTAUTH_URL}/api/revalidate?path=/steuerberater/${s.stadt.slug}&secret=${process.env.NEXTAUTH_SECRET}`);
+      await fetch(`${process.env.NEXTAUTH_URL}/api/revalidate`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${process.env.REVALIDATE_SECRET}`,
+        },
+        body: JSON.stringify({ path: `/steuerberater/${s.stadt.slug}` }),
+      });
     }
   }
 

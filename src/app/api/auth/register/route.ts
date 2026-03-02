@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
+import { slugify } from "@/lib/utils";
 
 const schema = z.object({
   email: z.string().email(),
@@ -19,7 +20,7 @@ export async function POST(req: NextRequest) {
   if (exists) return NextResponse.json({ error: "E-Mail bereits registriert" }, { status: 409 });
 
   const passwordHash = await bcrypt.hash(password, 12);
-  const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, "-") + "-" + Date.now();
+  const slug = slugify(name) + "-" + Date.now();
 
   const user = await prisma.user.create({
     data: {

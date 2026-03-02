@@ -19,11 +19,22 @@ export async function PATCH(req: NextRequest) {
   const parsed = schema.safeParse(body);
   if (!parsed.success) return NextResponse.json({ error: "Ungültige Eingabe" }, { status: 400 });
 
-  const userId = (session.user as any).id;
-  await prisma.steuerberaterProfile.update({
-    where: { userId },
-    data: parsed.data,
-  });
+  const userId = session.user.id;
+  const profile = await prisma.steuerberaterProfile.findUnique({ where: { userId } });
+  if (!profile) return NextResponse.json({ error: "Profil nicht gefunden" }, { status: 404 });
+
+  const updateData: { telefon?: string; website?: string; beschreibung?: string; tags?: string[] } = {
+    telefon: parsed.data.telefon,
+    website: parsed.data.website,
+  };
+
+  // Premium-only fields — enforce server-side regardless of what the client sends
+  if (profile.paket !== "BASIC") {
+    updateData.beschreibung = parsed.data.beschreibung;
+    updateData.tags = parsed.data.tags;
+  }
+
+  await prisma.steuerberaterProfile.update({ where: { userId }, data: updateData });
 
   return NextResponse.json({ ok: true });
 }

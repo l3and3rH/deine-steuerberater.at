@@ -9,7 +9,7 @@ export default async function DashboardPage() {
   if (!session) redirect("/auth/login");
 
   const profile = await prisma.steuerberaterProfile.findUnique({
-    where: { userId: (session.user as any).id },
+    where: { userId: session.user.id },
     include: { staedte: { include: { stadt: true } } },
   });
 
