@@ -1,0 +1,44 @@
+{
+  "name": "steuerberater-verzeichnis",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "seed:staedte": "npx ts-node --compiler-options '{\"module\":\"CommonJS\"}' prisma/seed-staedte.ts",
+    "import:steuerberater": "npx ts-node --compiler-options '{\"module\":\"CommonJS\"}' scripts/import-steuerberater.ts",
+    "test:e2e": "playwright test"
+  },
+  "dependencies": {
+    "@auth/prisma-adapter": "^2.11.1",
+    "@prisma/client": "^7.4.2",
+    "bcryptjs": "^3.0.3",
+    "next": "14.2.29",
+    "next-auth": "^4.24.13",
+    "prisma": "^7.4.2",
+    "react": "^18",
+    "react-dom": "^18",
+    "stripe": "^20.4.0",
+    "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.58.2",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.2",
+    "@types/bcryptjs": "^2.4.6",
+    "@types/node": "^20",
+    "@types/react": "^18",
+    "@types/react-dom": "^18",
+    "autoprefixer": "^10.0.1",
+    "eslint": "^8",
+    "eslint-config-next": "14.2.29",
+    "jest": "^30.2.0",
+    "jest-environment-jsdom": "^30.2.0",
+    "postcss": "^8",
+    "tailwindcss": "^3.4.1",
+    "ts-jest": "^29.4.6",
+    "typescript": "^5"
+  }
+}
