@@ -50,6 +50,7 @@ const PAGE_SIZE = 10;
 const PAKET_ORDER: Record<Paket, number> = { SEO: 0, GOLD: 1, BASIC: 2 };
 
 const EMPTY_FILTERS: FilterState = {
+  nameSearch: "",
   spezialisierung: [],
   mandantengruppen: [],
   berufsbezeichnungen: [],
@@ -78,6 +79,14 @@ export default function BeraterListFilter({ berater, stadtSlug, stadtName }: Pro
   const filtered = useMemo(() => {
     let list = berater;
 
+    if (filters.nameSearch.trim()) {
+      const q = filters.nameSearch.trim().toLowerCase();
+      list = list.filter(
+        (b) =>
+          b.name.toLowerCase().includes(q) ||
+          (b.kanzleiname ?? "").toLowerCase().includes(q)
+      );
+    }
     if (filters.spezialisierung.length > 0) {
       list = list.filter((b) => filters.spezialisierung.some((t) => b.tags.includes(t)));
     }
@@ -152,22 +161,27 @@ export default function BeraterListFilter({ berater, stadtSlug, stadtName }: Pro
       {/* Results – remaining space */}
       <div className="flex-1 min-w-0">
         {/* Results header */}
-        <div className="flex items-center justify-between mb-5 gap-4 flex-wrap">
-          <p className="text-sm text-forest-500">
-            <span className="font-semibold text-forest-900">{filtered.length}</span>{" "}
-            {filtered.length === 1 ? "Steuerberater" : "Steuerberater"} gefunden
-            {stadtName && ` in ${stadtName}`}
-          </p>
+        <div className="flex items-center justify-between mb-5 gap-4 flex-wrap bg-white border border-forest-100 rounded-xl px-5 py-3.5 shadow-sm">
+          <div>
+            <span className="font-display font-semibold text-forest-900 text-lg tabular-nums">
+              {filtered.length}
+            </span>
+            <span className="text-sm text-forest-500 ml-1.5">
+              Steuerberater{stadtName && (
+                <> gefunden in <span className="text-forest-700 font-medium">{stadtName}</span></>
+              )}
+            </span>
+          </div>
           <div className="flex items-center gap-2">
-            <label htmlFor="sort-select" className="text-sm text-forest-500 whitespace-nowrap">
-              Sortierung:
+            <label htmlFor="sort-select" className="text-xs font-medium text-forest-400 whitespace-nowrap uppercase tracking-wide">
+              Sortierung
             </label>
             <select
               id="sort-select"
               value={sort}
               onChange={(e) => { setSort(e.target.value as SortOption); setPage(1); }}
               aria-label="Sortierung wählen"
-              className="text-sm border border-forest-200 rounded-lg px-3 py-1.5 bg-white text-forest-700 focus:outline-none focus:ring-2 focus:ring-gold-500/50"
+              className="text-sm border border-forest-200 rounded-lg px-3 py-1.5 bg-white text-forest-700 focus:outline-none focus:ring-2 focus:ring-forest-500/20 focus:border-forest-400 transition-shadow"
             >
               <option value="standard">Relevanz</option>
               <option value="rating">Beste Bewertung</option>
@@ -215,19 +229,19 @@ export default function BeraterListFilter({ berater, stadtSlug, stadtName }: Pro
             />
           ))}
           {filtered.length === 0 && (
-            <div className="text-center py-20">
-              <div className="w-16 h-16 rounded-full bg-forest-50 flex items-center justify-center mx-auto mb-4">
-                <svg className="w-8 h-8 text-forest-300" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-1.053M18 7.5a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm-2.25 0a1.125 1.125 0 11-2.25 0 1.125 1.125 0 012.25 0z" />
+            <div className="text-center py-20 bg-white rounded-xl border border-forest-100">
+              <div className="w-14 h-14 rounded-full bg-forest-50 border border-forest-100 flex items-center justify-center mx-auto mb-4">
+                <svg className="w-7 h-7 text-forest-300" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
                 </svg>
               </div>
-              <p className="text-forest-500 font-medium mb-1">Keine Ergebnisse</p>
-              <p className="text-forest-400 text-sm">
-                Keine Steuerberater für die gewählten Filter in {stadtName} gefunden.
+              <p className="font-display font-semibold text-forest-700 mb-1">Keine Treffer</p>
+              <p className="text-forest-400 text-sm max-w-xs mx-auto">
+                Für die gewählten Filter wurden keine Steuerberater{stadtName && ` in ${stadtName}`} gefunden.
               </p>
               <button
                 onClick={() => handleFiltersChange(EMPTY_FILTERS)}
-                className="mt-3 text-sm text-forest-600 hover:text-forest-900 underline transition-colors"
+                className="mt-4 inline-flex items-center gap-1.5 text-sm text-forest-600 hover:text-forest-900 font-medium transition-colors border border-forest-200 rounded-lg px-4 py-2 hover:bg-forest-50"
               >
                 Filter zurücksetzen
               </button>
@@ -237,37 +251,52 @@ export default function BeraterListFilter({ berater, stadtSlug, stadtName }: Pro
 
         {/* Pagination */}
         {totalPages > 1 && (
-          <div className="flex items-center justify-center gap-2 mt-8">
-            <button
-              onClick={() => setPage((p) => Math.max(1, p - 1))}
-              disabled={page === 1}
-              aria-label="Vorherige Seite"
-              className="px-3 py-2 text-sm rounded-lg border border-forest-200 text-forest-700 hover:bg-forest-50 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-            >
-              Zurück
-            </button>
-            {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
+          <div className="flex items-center justify-between mt-8 bg-white border border-forest-100 rounded-xl px-5 py-3.5 shadow-sm">
+            <p className="text-xs text-forest-400">
+              Seite <span className="font-semibold text-forest-700">{page}</span> von{" "}
+              <span className="font-semibold text-forest-700">{totalPages}</span>
+            </p>
+            <div className="flex items-center gap-1.5">
               <button
-                key={p}
-                onClick={() => setPage(p)}
-                aria-current={p === page ? "page" : undefined}
-                className={`w-9 h-9 text-sm rounded-lg font-medium transition-colors ${
-                  p === page
-                    ? "bg-forest-900 text-cream-100"
-                    : "border border-forest-200 text-forest-700 hover:bg-forest-50"
-                }`}
+                onClick={() => setPage((p) => Math.max(1, p - 1))}
+                disabled={page === 1}
+                aria-label="Vorherige Seite"
+                className="inline-flex items-center gap-1 px-3 py-1.5 text-xs rounded-lg border border-forest-200 text-forest-600 hover:bg-forest-50 transition-colors disabled:opacity-30 disabled:cursor-not-allowed font-medium"
               >
-                {p}
+                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
+                </svg>
+                Zurück
               </button>
-            ))}
-            <button
-              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-              disabled={page === totalPages}
-              aria-label="Nächste Seite"
-              className="px-3 py-2 text-sm rounded-lg border border-forest-200 text-forest-700 hover:bg-forest-50 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-            >
-              Weiter
-            </button>
+              {Array.from({ length: Math.min(totalPages, 7) }, (_, i) => {
+                const p = totalPages <= 7 ? i + 1 : page <= 4 ? i + 1 : page >= totalPages - 3 ? totalPages - 6 + i : page - 3 + i;
+                return (
+                  <button
+                    key={p}
+                    onClick={() => setPage(p)}
+                    aria-current={p === page ? "page" : undefined}
+                    className={`w-8 h-8 text-xs rounded-lg font-medium transition-colors ${
+                      p === page
+                        ? "bg-forest-900 text-cream-100 shadow-sm"
+                        : "border border-forest-200 text-forest-600 hover:bg-forest-50"
+                    }`}
+                  >
+                    {p}
+                  </button>
+                );
+              })}
+              <button
+                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                disabled={page === totalPages}
+                aria-label="Nächste Seite"
+                className="inline-flex items-center gap-1 px-3 py-1.5 text-xs rounded-lg border border-forest-200 text-forest-600 hover:bg-forest-50 transition-colors disabled:opacity-30 disabled:cursor-not-allowed font-medium"
+              >
+                Weiter
+                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+                </svg>
+              </button>
+            </div>
           </div>
         )}
       </div>

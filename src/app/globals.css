@@ -24,7 +24,7 @@
     inset: 0;
     pointer-events: none;
     z-index: 9999;
-    opacity: 0.03;
+    opacity: 0.025;
     background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
   }
 
@@ -53,11 +53,47 @@
     50% { background-position: 100% 50%; }
   }
 
+  /* Refined card hover – subtle lift + deeper shadow */
   .card-hover {
-    @apply transition-all duration-300 ease-out;
+    transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1),
+                box-shadow 0.25s cubic-bezier(0.22, 1, 0.36, 1),
+                border-color 0.25s ease;
   }
   .card-hover:hover {
-    @apply -translate-y-1 shadow-lg;
+    transform: translateY(-2px);
+    box-shadow: 0 12px 40px -8px rgba(15, 43, 29, 0.14),
+                0 4px 12px -4px rgba(15, 43, 29, 0.08);
+  }
+
+  /* Filter section collapse animation */
+  .filter-section-body {
+    overflow: hidden;
+    transition: max-height 0.22s cubic-bezier(0.4, 0, 0.2, 1),
+                opacity 0.18s ease;
+  }
+  .filter-section-body[data-open="true"] {
+    opacity: 1;
+  }
+  .filter-section-body[data-open="false"] {
+    opacity: 0;
+    max-height: 0 !important;
+  }
+
+  /* Custom checkbox */
+  .filter-checkbox {
+    @apply w-4 h-4 rounded border-forest-300 text-forest-900 accent-forest-900 cursor-pointer;
+    flex-shrink: 0;
+  }
+
+  /* Active filter chip */
+  .active-chip {
+    @apply inline-flex items-center gap-1 text-xs bg-forest-900 text-cream-100 px-2.5 py-1 rounded-full
+           hover:bg-forest-700 transition-colors cursor-pointer font-medium;
+  }
+
+  /* Service badge */
+  .service-badge {
+    @apply inline-flex items-center gap-1 text-xs text-forest-600 font-medium;
   }
 
   .stagger-1 { animation-delay: 0.05s; }
@@ -71,28 +107,13 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  html {
-    scroll-behavior: auto;
-  }
-
-  *,
-  *::before,
-  *::after {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
-
-  .gold-shine {
-    animation: none;
-    background-size: 100% 100%;
-  }
-
-  .card-hover:hover {
-    transform: none;
-  }
-
-  .animate-pulse {
-    animation: none;
-  }
+  .gold-shine { animation: none; background-size: 100% 100%; }
+  .card-hover:hover { transform: none; box-shadow: none; }
+  .animate-pulse { animation: none; }
 }
