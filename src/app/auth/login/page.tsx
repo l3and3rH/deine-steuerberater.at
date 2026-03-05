@@ -2,6 +2,7 @@
 import { signIn } from "next-auth/react";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -17,21 +18,37 @@ export default function LoginPage() {
   }
 
   return (
-    <main className="min-h-screen flex items-center justify-center bg-gray-50">
-      <form onSubmit={handleSubmit} className="bg-white p-8 rounded-lg border border-gray-200 w-full max-w-sm">
-        <h1 className="text-xl font-bold mb-6">Steuerberater Login</h1>
-        {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
-        <input type="email" placeholder="E-Mail" value={email} onChange={(e) => setEmail(e.target.value)}
-          className="w-full border border-gray-300 rounded px-3 py-2 mb-3" required />
-        <input type="password" placeholder="Passwort" value={password} onChange={(e) => setPassword(e.target.value)}
-          className="w-full border border-gray-300 rounded px-3 py-2 mb-6" required />
-        <button type="submit" className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700">
-          Anmelden
-        </button>
-        <p className="text-sm text-center mt-4 text-gray-500">
-          Noch kein Konto? <a href="/auth/register" className="text-blue-600 hover:underline">Registrieren</a>
+    <main className="min-h-[80vh] flex items-center justify-center px-6 py-16">
+      <div className="w-full max-w-sm">
+        <div className="text-center mb-8">
+          <h1 className="font-display text-2xl font-semibold text-forest-900 mb-2">Willkommen zurück</h1>
+          <p className="text-forest-500 text-sm">Melden Sie sich in Ihrem Kanzlei-Dashboard an</p>
+        </div>
+        <form onSubmit={handleSubmit} className="bg-white rounded-xl border border-forest-100 p-8 shadow-sm">
+          {error && (
+            <div className="bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-3 rounded-lg mb-5">
+              {error}
+            </div>
+          )}
+          <div className="mb-4">
+            <label className="block text-sm font-medium text-forest-700 mb-1.5">E-Mail</label>
+            <input type="email" value={email} onChange={(e) => setEmail(e.target.value)}
+              className="w-full border border-forest-200 rounded-lg px-4 py-2.5 text-forest-900 focus:outline-none focus:ring-2 focus:ring-forest-500/30 focus:border-forest-400 transition-shadow" required />
+          </div>
+          <div className="mb-6">
+            <label className="block text-sm font-medium text-forest-700 mb-1.5">Passwort</label>
+            <input type="password" value={password} onChange={(e) => setPassword(e.target.value)}
+              className="w-full border border-forest-200 rounded-lg px-4 py-2.5 text-forest-900 focus:outline-none focus:ring-2 focus:ring-forest-500/30 focus:border-forest-400 transition-shadow" required />
+          </div>
+          <button type="submit" className="w-full bg-forest-900 text-cream-100 py-2.5 rounded-lg font-medium hover:bg-forest-700 transition-colors">
+            Anmelden
+          </button>
+        </form>
+        <p className="text-sm text-center mt-5 text-forest-500">
+          Noch kein Konto?{" "}
+          <Link href="/auth/register" className="text-forest-900 font-medium hover:underline">Kostenlos registrieren</Link>
         </p>
-      </form>
+      </div>
     </main>
   );
 }

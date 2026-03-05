@@ -72,8 +72,28 @@ model SteuerberaterProfile {
   stripeCustomerId       String?
   stripeSubscriptionId   String?
   verified               Boolean              @default(false)
+  openingHours           String?
+  languages              String[]
+  experienceYears        Int?
+  berufsbezeichnung      Berufsbezeichnung    @default(STEUERBERATER)
+  kanzleiname            String?
+  bezirk                 String?
+  kswMitglied            Boolean              @default(false)
+  kswMitgliedsnummer     String?
+  zulassungsjahr         Int?
+  ausbildung             String?
+  auszeichnungen         String[]
+  mitgliedschaften       String[]
+  mandantengruppen       String[]
+  gratisErstgespraech    Boolean              @default(false)
+  onlineBeratung         Boolean              @default(false)
+  beratungVorOrt         Boolean              @default(true)
+  schnellantwort         Boolean              @default(false)
+  abendtermine           Boolean              @default(false)
+  videoUrl               String?
   createdAt              DateTime             @default(now())
   staedte                SteuerberaterStadt[]
+  reviews                Review[]
 }
 
 model Stadt {
@@ -103,6 +123,25 @@ model SEOAnfrage {
   createdAt         DateTime @default(now())
 }
 
+model Review {
+  id          String               @id @default(cuid())
+  profileId   String
+  profile     SteuerberaterProfile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  authorName  String
+  authorEmail String
+  rating      Int
+  comment     String?
+  createdAt   DateTime             @default(now())
+
+  @@index([profileId])
+}
+
+model Newsletter {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  createdAt DateTime @default(now())
+}
+
 enum Role {
   STEUERBERATER
   ADMIN
@@ -112,4 +151,12 @@ enum Paket {
   BASIC
   GOLD
   SEO
+}
+
+enum Berufsbezeichnung {
+  STEUERBERATER
+  WIRTSCHAFTSPRUEFER
+  BEIDES
+  BUCHHALTER
+  BILANZBUCHHALTER
 }

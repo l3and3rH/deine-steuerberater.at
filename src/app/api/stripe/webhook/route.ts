@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
 import { prisma } from "@/lib/prisma";
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, { apiVersion: "2024-06-20" });
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
 
 export async function POST(req: NextRequest) {
   const body = await req.text();
@@ -52,7 +52,8 @@ export async function POST(req: NextRequest) {
     case "customer.subscription.updated": {
       const sub = event.data.object as Stripe.Subscription;
       if (sub.status === "active") {
-        const aktivBis = new Date(sub.current_period_end * 1000);
+        const periodEnd = sub.items.data[0]?.current_period_end;
+        const aktivBis = periodEnd ? new Date(periodEnd * 1000) : undefined;
         await updateProfile(sub.id, "GOLD", aktivBis);
       }
       break;

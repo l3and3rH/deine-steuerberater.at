@@ -15,33 +15,56 @@ export default async function AdminPage() {
   const seoAnfragen = await prisma.sEOAnfrage.findMany({ orderBy: { createdAt: "desc" } });
 
   return (
-    <main className="min-h-screen bg-gray-50">
-      <div className="max-w-6xl mx-auto px-4 py-12">
-        <h1 className="text-2xl font-bold mb-8">Admin Panel</h1>
+    <main className="min-h-screen">
+      <div className="max-w-6xl mx-auto px-6 py-12">
+        <h1 className="font-display text-2xl font-semibold text-forest-900 mb-8">Admin Panel</h1>
 
         <section className="mb-12">
-          <h2 className="text-lg font-semibold mb-4">Profile ({profiles.length})</h2>
-          <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+          <h2 className="font-display text-lg font-semibold text-forest-800 mb-4 flex items-center gap-2">
+            Profile
+            <span className="text-sm font-body font-normal text-forest-500 bg-forest-50 px-2.5 py-0.5 rounded-full">
+              {profiles.length}
+            </span>
+          </h2>
+          <div className="bg-white rounded-xl border border-forest-100 overflow-hidden shadow-sm">
             <table className="w-full text-sm">
-              <thead className="bg-gray-50">
+              <thead className="bg-forest-50/50">
                 <tr>
-                  <th className="text-left px-4 py-3">Name</th>
-                  <th className="text-left px-4 py-3">Paket</th>
-                  <th className="text-left px-4 py-3">Verifiziert</th>
-                  <th className="text-left px-4 py-3">Erstellt</th>
+                  <th className="text-left px-5 py-3 text-xs font-semibold uppercase tracking-wider text-forest-500">Name</th>
+                  <th className="text-left px-5 py-3 text-xs font-semibold uppercase tracking-wider text-forest-500">Paket</th>
+                  <th className="text-left px-5 py-3 text-xs font-semibold uppercase tracking-wider text-forest-500">Verifiziert</th>
+                  <th className="text-left px-5 py-3 text-xs font-semibold uppercase tracking-wider text-forest-500">Erstellt</th>
                 </tr>
               </thead>
               <tbody>
                 {profiles.map((p) => (
-                  <tr key={p.id} className="border-t border-gray-100">
-                    <td className="px-4 py-3">{p.name}<br /><span className="text-gray-400">{p.email}</span></td>
-                    <td className="px-4 py-3">
-                      <span className={`px-2 py-0.5 rounded-full text-xs ${p.paket === "GOLD" ? "bg-yellow-100 text-yellow-700" : p.paket === "SEO" ? "bg-purple-100 text-purple-700" : "bg-gray-100 text-gray-600"}`}>
+                  <tr key={p.id} className="border-t border-forest-50 hover:bg-forest-50/30 transition-colors">
+                    <td className="px-5 py-3.5">
+                      <span className="font-medium text-forest-900">{p.name}</span>
+                      <br />
+                      <span className="text-forest-400 text-xs">{p.email}</span>
+                    </td>
+                    <td className="px-5 py-3.5">
+                      <span className={`inline-flex px-2.5 py-0.5 rounded-full text-xs font-semibold ${
+                        p.paket === "GOLD"
+                          ? "bg-gold-300/30 text-gold-700"
+                          : p.paket === "SEO"
+                          ? "bg-purple-100 text-purple-700"
+                          : "bg-forest-50 text-forest-500"
+                      }`}>
                         {p.paket}
                       </span>
                     </td>
-                    <td className="px-4 py-3">{p.verified ? "✓" : "—"}</td>
-                    <td className="px-4 py-3 text-gray-400">{new Date(p.createdAt).toLocaleDateString("de-AT")}</td>
+                    <td className="px-5 py-3.5">
+                      {p.verified ? (
+                        <span className="text-forest-600 font-medium">Ja</span>
+                      ) : (
+                        <span className="text-forest-300">Nein</span>
+                      )}
+                    </td>
+                    <td className="px-5 py-3.5 text-forest-400 text-xs">
+                      {new Date(p.createdAt).toLocaleDateString("de-AT")}
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -50,13 +73,18 @@ export default async function AdminPage() {
         </section>
 
         <section>
-          <h2 className="text-lg font-semibold mb-4">SEO-Anfragen ({seoAnfragen.length})</h2>
+          <h2 className="font-display text-lg font-semibold text-forest-800 mb-4 flex items-center gap-2">
+            SEO-Anfragen
+            <span className="text-sm font-body font-normal text-forest-500 bg-forest-50 px-2.5 py-0.5 rounded-full">
+              {seoAnfragen.length}
+            </span>
+          </h2>
           <div className="flex flex-col gap-3">
             {seoAnfragen.map((a) => (
-              <div key={a.id} className="bg-white rounded-lg border border-gray-200 p-4">
-                <p className="font-medium">{a.kontaktEmail}</p>
-                <p className="text-sm text-gray-600 mt-1">{a.nachricht}</p>
-                <p className="text-xs text-gray-400 mt-2">{new Date(a.createdAt).toLocaleDateString("de-AT")}</p>
+              <div key={a.id} className="bg-white rounded-xl border border-forest-100 p-5 shadow-sm">
+                <p className="font-medium text-forest-900">{a.kontaktEmail}</p>
+                <p className="text-sm text-forest-600 mt-1 leading-relaxed">{a.nachricht}</p>
+                <p className="text-xs text-forest-400 mt-2">{new Date(a.createdAt).toLocaleDateString("de-AT")}</p>
               </div>
             ))}
           </div>
