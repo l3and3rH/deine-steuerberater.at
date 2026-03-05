@@ -294,16 +294,15 @@ export default async function HomePage() {
               Durchsuchen Sie jetzt unser Verzeichnis — kostenlos, ohne Anmeldung, österreichweit.
             </p>
           </div>
-          <a
-            href="#hero"
-            onClick={(e) => { e.preventDefault(); window.scrollTo({ top: 0, behavior: "smooth" }); }}
+          <Link
+            href="/"
             className="flex-shrink-0 inline-flex items-center gap-2 bg-forest-900 hover:bg-forest-700 text-cream-100 font-semibold px-5 py-2.5 rounded-lg transition-colors text-sm"
           >
             Zur Suche
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 10.5L12 3m0 0l7.5 7.5M12 3v18" />
             </svg>
-          </a>
+          </Link>
         </div>
       </section>
 
