@@ -183,7 +183,11 @@ export default async function ProfilePage({ params }: { params: { slug: string; 
           {profile.beschreibung && (
             <div className="mb-8">
               <h2 className="text-xs font-semibold uppercase tracking-widest text-forest-400 mb-3">Über die Kanzlei</h2>
-              <p className="text-forest-700 leading-relaxed">{profile.beschreibung}</p>
+              <div className="relative pl-4 border-l-2 border-forest-200">
+                <p className="text-[0.9375rem] text-forest-700 leading-[1.75] tracking-[0.01em]">
+                  {profile.beschreibung}
+                </p>
+              </div>
             </div>
           )}
 
