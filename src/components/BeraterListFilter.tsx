@@ -63,6 +63,7 @@ export default function BeraterListFilter({ berater, stadtSlug, stadtName }: Pro
   const [filters, setFilters] = useState<FilterState>(EMPTY_FILTERS);
   const [sort, setSort] = useState<SortOption>("standard");
   const [page, setPage] = useState(1);
+  const [mobileFilterOpen, setMobileFilterOpen] = useState(false);
 
   const allTags = useMemo(() => {
     const set = new Set<string>();
@@ -146,10 +147,55 @@ export default function BeraterListFilter({ berater, stadtSlug, stadtName }: Pro
     setPage(1);
   };
 
+  const activeFilterCount =
+    (filters.nameSearch.trim() ? 1 : 0) +
+    filters.spezialisierung.length +
+    filters.mandantengruppen.length +
+    filters.berufsbezeichnungen.length +
+    filters.sprachen.length +
+    filters.serviceOptionen.length +
+    (filters.minRating > 0 ? 1 : 0);
+
+  const sortSelect = (
+    <select
+      id="sort-select"
+      value={sort}
+      onChange={(e) => { setSort(e.target.value as SortOption); setPage(1); }}
+      aria-label="Sortierung wählen"
+      className="text-sm border border-forest-200 rounded-lg px-3 py-1.5 bg-white text-forest-700 focus:outline-none focus:ring-2 focus:ring-forest-500/20 focus:border-forest-400 transition-shadow"
+    >
+      <option value="standard">Relevanz</option>
+      <option value="rating">Beste Bewertung</option>
+      <option value="erfahrung">Erfahrung</option>
+      <option value="name">Alphabetisch</option>
+      <option value="newest">Neueste</option>
+    </select>
+  );
+
   return (
+    <>
+      {/* ── Mobile filter drawer overlay ── */}
+      {mobileFilterOpen && (
+        <div className="fixed inset-0 z-50 md:hidden">
+          <div
+            className="absolute inset-0 bg-forest-950/40 backdrop-blur-sm"
+            onClick={() => setMobileFilterOpen(false)}
+          />
+          <div className="absolute inset-x-0 bottom-0 bg-cream-100 rounded-t-2xl max-h-[88vh] overflow-y-auto shadow-2xl">
+            <FilterSidebar
+              filters={filters}
+              onChange={handleFiltersChange}
+              allTags={allTags}
+              allSprachen={allSprachen}
+              onClose={() => setMobileFilterOpen(false)}
+            />
+          </div>
+        </div>
+      )}
+
     <div className="flex gap-8 items-start">
-      {/* Sidebar – 28% */}
-      <div className="w-72 flex-shrink-0">
+      {/* Sidebar – desktop only */}
+      <div className="hidden md:block w-72 flex-shrink-0">
         <FilterSidebar
           filters={filters}
           onChange={handleFiltersChange}
@@ -158,10 +204,31 @@ export default function BeraterListFilter({ berater, stadtSlug, stadtName }: Pro
         />
       </div>
 
-      {/* Results – remaining space */}
-      <div className="flex-1 min-w-0">
-        {/* Results header */}
-        <div className="flex items-center justify-between mb-5 gap-4 flex-wrap bg-white border border-forest-100 rounded-xl px-5 py-3.5 shadow-sm">
+      {/* Results */}
+      <div className="flex-1 min-w-0 w-full">
+
+        {/* Mobile toolbar */}
+        <div className="flex md:hidden items-center gap-2 mb-4">
+          <button
+            type="button"
+            onClick={() => setMobileFilterOpen(true)}
+            className="inline-flex items-center gap-2 flex-1 justify-center border border-forest-200 bg-white rounded-xl px-4 py-2.5 text-sm font-semibold text-forest-700 shadow-sm"
+          >
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 6h9.75M10.5 6a1.5 1.5 0 11-3 0m3 0a1.5 1.5 0 10-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-9.75 0h9.75" />
+            </svg>
+            Filter
+            {activeFilterCount > 0 && (
+              <span className="bg-forest-900 text-cream-100 text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[1.25rem] text-center leading-none">
+                {activeFilterCount}
+              </span>
+            )}
+          </button>
+          {sortSelect}
+        </div>
+
+        {/* Desktop results header */}
+        <div className="hidden md:flex items-center justify-between mb-5 gap-4 flex-wrap bg-white border border-forest-100 rounded-xl px-5 py-3.5 shadow-sm">
           <div>
             <span className="font-display font-semibold text-forest-900 text-lg tabular-nums">
               {filtered.length}
@@ -176,21 +243,15 @@ export default function BeraterListFilter({ berater, stadtSlug, stadtName }: Pro
             <label htmlFor="sort-select" className="text-xs font-medium text-forest-400 whitespace-nowrap uppercase tracking-wide">
               Sortierung
             </label>
-            <select
-              id="sort-select"
-              value={sort}
-              onChange={(e) => { setSort(e.target.value as SortOption); setPage(1); }}
-              aria-label="Sortierung wählen"
-              className="text-sm border border-forest-200 rounded-lg px-3 py-1.5 bg-white text-forest-700 focus:outline-none focus:ring-2 focus:ring-forest-500/20 focus:border-forest-400 transition-shadow"
-            >
-              <option value="standard">Relevanz</option>
-              <option value="rating">Beste Bewertung</option>
-              <option value="erfahrung">Erfahrung</option>
-              <option value="name">Alphabetisch</option>
-              <option value="newest">Neueste</option>
-            </select>
+            {sortSelect}
           </div>
         </div>
+
+        {/* Mobile result count */}
+        <p className="md:hidden text-sm text-forest-500 mb-3">
+          <span className="font-semibold text-forest-900 tabular-nums">{filtered.length}</span>
+          {" "}Steuerberater{stadtName && <> in <span className="font-medium text-forest-700">{stadtName}</span></>}
+        </p>
 
         {/* Listings */}
         <div className="flex flex-col gap-4">
@@ -301,5 +362,6 @@ export default function BeraterListFilter({ berater, stadtSlug, stadtName }: Pro
         )}
       </div>
     </div>
+    </>
   );
 }

@@ -8,11 +8,23 @@ export const revalidate = 3600;
 
 export default async function HomePage() {
   const staedte = await prisma.stadt.findMany({
-    orderBy: { name: "asc" },
-    select: { name: true, slug: true, bundesland: true },
+    orderBy: { steuerberater: { _count: "desc" } },
+    select: {
+      name: true,
+      slug: true,
+      bundesland: true,
+      _count: { select: { steuerberater: true } },
+    },
   });
 
-  const bundeslaender = Array.from(new Set(staedte.map((s) => s.bundesland))).sort();
+  const staedteMitBerater = staedte.filter((s) => s._count.steuerberater >= 3);
+  const bundeslaender = Array.from(new Set(staedteMitBerater.map((s) => s.bundesland))).sort(
+    (a, b) =>
+      staedteMitBerater.filter((s) => s.bundesland === b).reduce((sum, s) => sum + s._count.steuerberater, 0) -
+      staedteMitBerater.filter((s) => s.bundesland === a).reduce((sum, s) => sum + s._count.steuerberater, 0)
+  );
+
+  const beraterCount = await prisma.steuerberaterProfile.count();
 
   // Featured premium advisors
   const featuredProfiles = await prisma.steuerberaterProfile.findMany({
@@ -43,16 +55,16 @@ export default async function HomePage() {
         <div className="absolute inset-0 opacity-[0.07]" style={{
           backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
         }} />
-        <div className="relative max-w-5xl mx-auto px-6 py-24 md:py-32">
-          <p className="animate-fade-up text-gold-400 font-medium text-sm tracking-widest uppercase mb-6">
+        <div className="relative max-w-5xl mx-auto px-4 sm:px-6 py-16 sm:py-24 md:py-32">
+          <p className="animate-fade-up text-gold-400 font-medium text-sm tracking-widest uppercase mb-4 sm:mb-6">
             Das Verzeichnis für Österreich
           </p>
-          <h1 className="animate-fade-up stagger-1 font-display text-4xl md:text-5xl lg:text-6xl font-semibold text-cream-100 leading-[1.1] mb-6 max-w-3xl">
+          <h1 className="animate-fade-up stagger-1 font-display text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-semibold text-cream-100 leading-[1.1] mb-4 sm:mb-6 max-w-3xl">
             Finden Sie den passenden
             <br />
             <span className="text-gold-400">Steuerberater</span> in Ihrer Stadt
           </h1>
-          <p className="animate-fade-up stagger-2 text-cream-300 text-lg md:text-xl max-w-xl mb-10 leading-relaxed">
+          <p className="animate-fade-up stagger-2 text-cream-300 text-base sm:text-lg md:text-xl max-w-xl mb-8 sm:mb-10 leading-relaxed">
             Vergleichen Sie qualifizierte Steuerberater in ganz Österreich
             und nehmen Sie direkt Kontakt auf.
           </p>
@@ -71,8 +83,8 @@ export default async function HomePage() {
           </div>
           <div className="w-px h-8 bg-forest-200 hidden sm:block" />
           <div className="text-center">
-            <p className="font-display text-2xl font-semibold text-forest-900">9</p>
-            <p className="text-sm text-forest-600">Bundesländer</p>
+            <p className="font-display text-2xl font-semibold text-forest-900">{beraterCount}</p>
+            <p className="text-sm text-forest-600">Steuerberater</p>
           </div>
           <div className="w-px h-8 bg-forest-200 hidden sm:block" />
           <div className="text-center">
@@ -144,50 +156,6 @@ export default async function HomePage() {
           </div>
         </section>
       )}
-
-      {/* Testimonials */}
-      <section className="bg-forest-50/50 border-y border-forest-200/40">
-        <div className="max-w-5xl mx-auto px-6 py-20">
-          <div className="mb-10 text-center">
-            <h2 className="font-display text-2xl md:text-3xl font-semibold text-forest-900 mb-3">
-              Das sagen unsere Nutzer
-            </h2>
-            <p className="text-forest-600 max-w-md mx-auto">
-              Erfahrungen von Mandanten und Steuerberatern auf unserer Plattform.
-            </p>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {[
-              {
-                quote: "Innerhalb weniger Minuten habe ich den perfekten Steuerberater für meine Immobiliengesellschaft gefunden. Die Filterfunktion nach Fachgebiet war besonders hilfreich.",
-                name: "Maria K.",
-                role: "Unternehmerin, Wien",
-              },
-              {
-                quote: "Seit wir unser Premium-Profil haben, erhalten wir regelmäßig qualifizierte Anfragen über die Plattform. Die Investition hat sich bereits im ersten Monat gelohnt.",
-                name: "Mag. Thomas R.",
-                role: "Steuerberater, Graz",
-              },
-              {
-                quote: "Endlich eine übersichtliche Plattform, auf der man Steuerberater vergleichen kann. Die Bewertungen anderer Mandanten haben mir die Entscheidung sehr erleichtert.",
-                name: "Stefan L.",
-                role: "Freiberufler, Salzburg",
-              },
-            ].map((t) => (
-              <div key={t.name} className="bg-white rounded-xl border border-forest-100 p-6">
-                <svg className="w-8 h-8 text-gold-400/60 mb-3" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z" />
-                </svg>
-                <p className="text-sm text-forest-700 leading-relaxed mb-4">{t.quote}</p>
-                <div>
-                  <p className="font-medium text-forest-900 text-sm">{t.name}</p>
-                  <p className="text-xs text-forest-500">{t.role}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
 
       {/* Guide: Wie man den richtigen Steuerberater findet */}
       <section className="max-w-5xl mx-auto px-6 py-20">
@@ -319,14 +287,14 @@ export default async function HomePage() {
 
         <div className="space-y-10">
           {bundeslaender.map((bl) => {
-            const cities = staedte.filter((s) => s.bundesland === bl);
+            const cities = staedteMitBerater.filter((s) => s.bundesland === bl);
             return (
               <div key={bl}>
                 <h3 className="font-display text-lg font-semibold text-forest-800 mb-3 flex items-center gap-3">
                   <span className="w-1.5 h-1.5 rounded-full bg-gold-500" />
                   {bl}
                   <span className="text-sm font-body font-normal text-forest-500">
-                    ({cities.length})
+                    ({cities.length} {cities.length === 1 ? "Stadt" : "Städte"})
                   </span>
                 </h3>
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2">
@@ -334,10 +302,13 @@ export default async function HomePage() {
                     <Link
                       key={s.slug}
                       href={`/steuerberater/${s.slug}`}
-                      className="group px-3.5 py-2.5 bg-white rounded-lg border border-forest-100 hover:border-forest-400 hover:bg-forest-50 transition-all text-sm text-forest-800 hover:text-forest-900"
+                      className="group flex items-center justify-between gap-2 px-3.5 py-2.5 bg-white rounded-lg border border-forest-100 hover:border-forest-400 hover:bg-forest-50 transition-all"
                     >
-                      <span className="group-hover:translate-x-0.5 inline-block transition-transform">
+                      <span className="text-sm text-forest-800 group-hover:text-forest-900 group-hover:translate-x-0.5 inline-block transition-transform truncate">
                         {s.name}
+                      </span>
+                      <span className="flex-shrink-0 text-xs text-forest-400 font-medium tabular-nums">
+                        {s._count.steuerberater}
                       </span>
                     </Link>
                   ))}

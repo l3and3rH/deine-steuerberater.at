@@ -91,19 +91,19 @@ export default function NavbarSearch() {
       <button
         onClick={() => setOpen(true)}
         aria-label="Suche öffnen"
-        className="flex items-center gap-2 text-sm text-forest-500 hover:text-forest-700 transition-colors px-3 py-1.5 rounded-lg border border-forest-200 hover:border-forest-300 bg-white/50"
+        className="flex items-center gap-2.5 text-sm text-forest-400 hover:text-forest-600 transition-colors pl-3 pr-2.5 py-1.5 rounded-lg border border-forest-200 hover:border-forest-300 bg-white/50 w-44 lg:w-64"
       >
-        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
+        <svg className="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
         </svg>
-        <span className="hidden lg:inline">Suche</span>
-        <kbd className="hidden lg:inline text-xs text-forest-400 bg-forest-50 px-1.5 py-0.5 rounded font-mono">
+        <span className="flex-1 text-left truncate">Stadt, Name, Fachgebiet…</span>
+        <kbd className="flex-shrink-0 text-xs text-forest-400 bg-forest-50 px-1.5 py-0.5 rounded font-mono">
           ⌘K
         </kbd>
       </button>
 
       {open && (
-        <div className="absolute right-0 top-full mt-2 w-96 bg-white rounded-xl shadow-xl shadow-forest-950/10 border border-forest-100 z-50 overflow-hidden">
+        <div className="absolute right-0 top-full mt-2 w-80 md:w-96 bg-white rounded-xl shadow-xl shadow-forest-950/10 border border-forest-100 z-50 overflow-hidden">
           <div className="flex items-center gap-2 px-4 py-3 border-b border-forest-100">
             <svg className="w-4 h-4 text-forest-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />

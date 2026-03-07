@@ -3,7 +3,6 @@ import Link from "next/link";
 import { useSession } from "next-auth/react";
 import { useState } from "react";
 import NavbarSearch from "./NavbarSearch";
-import BundeslandDropdown from "./BundeslandDropdown";
 
 export default function Navbar() {
   const { data: session } = useSession();
@@ -26,7 +25,6 @@ export default function Navbar() {
           <Link href="/" className="text-sm text-forest-700 hover:text-forest-900 transition-colors">
             Verzeichnis
           </Link>
-          <BundeslandDropdown />
           <Link href="/faq" className="text-sm text-forest-700 hover:text-forest-900 transition-colors">
             FAQ
           </Link>

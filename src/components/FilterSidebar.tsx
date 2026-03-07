@@ -66,6 +66,7 @@ interface Props {
   onChange: (next: FilterState) => void;
   allTags: string[];
   allSprachen: string[];
+  onClose?: () => void;
 }
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
@@ -168,7 +169,7 @@ function CheckItem({
 
 // ── Main component ────────────────────────────────────────────────────────────
 
-export default function FilterSidebar({ filters, onChange, allTags, allSprachen }: Props) {
+export default function FilterSidebar({ filters, onChange, allTags, allSprachen, onClose }: Props) {
   // All sections open by default
   const [open, setOpen] = useState<Record<string, boolean>>({
     bezeichnung: true,
@@ -234,21 +235,35 @@ export default function FilterSidebar({ filters, onChange, allTags, allSprachen 
     });
 
   return (
-    <aside className="sticky top-4 bg-white rounded-xl border border-forest-100 shadow-sm overflow-hidden">
+    <aside className={`bg-white rounded-xl border border-forest-100 shadow-sm overflow-hidden${onClose ? "" : " md:sticky md:top-4"}`}>
       {/* Header */}
       <div className="flex items-center justify-between px-5 py-3.5 border-b border-forest-100 bg-forest-50/50">
         <h3 className="font-display font-semibold text-forest-900 text-sm">
           Filter
         </h3>
-        {hasFilters && (
-          <button
-            type="button"
-            onClick={resetAll}
-            className="text-xs text-forest-400 hover:text-forest-700 transition-colors font-medium"
-          >
-            Alle zurücksetzen
-          </button>
-        )}
+        <div className="flex items-center gap-3">
+          {hasFilters && (
+            <button
+              type="button"
+              onClick={resetAll}
+              className="text-xs text-forest-400 hover:text-forest-700 transition-colors font-medium"
+            >
+              Alle zurücksetzen
+            </button>
+          )}
+          {onClose && (
+            <button
+              type="button"
+              onClick={onClose}
+              aria-label="Filter schließen"
+              className="text-forest-400 hover:text-forest-700 transition-colors"
+            >
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Name search */}
