@@ -48,6 +48,49 @@ type SortOption = "standard" | "name" | "rating" | "erfahrung" | "newest";
 
 const PAGE_SIZE = 10;
 const PAKET_ORDER: Record<Paket, number> = { SEO: 0, GOLD: 1, BASIC: 2 };
+const EXCLUDED_TAGS = new Set([
+  // Basisleistungen – kaum differenzierend
+  "Umsatzsteuer", "Körperschaftsteuer",
+  // Dopplung mit Mandantengruppen-Filter (Spezialisierungen)
+  "Ärzte & Freie Berufe", "Start-ups & Gründung", "Landwirtschaft",
+  // Mandantengruppen-Werte die fälschlicherweise im Tags-Feld landen
+  "Privatpersonen", "KMU", "Konzerne", "Start-ups", "Freiberufler", "Vereine",
+]);
+// Kanonische Bezeichnung für Tags die in der DB unter mehreren Namen vorkommen
+const TAG_ALIASES: Record<string, string> = {
+  "Erbschaftssteuer": "Erbschaft & Schenkung",
+};
+const normalizeTag = (t: string) => TAG_ALIASES[t] ?? t;
+
+function computeRelevanceScore(b: Berater): number {
+  let score = 0;
+
+  // ── Services (was der Nutzer zuerst sehen will) ────────────────────────────
+  if (b.gratisErstgespraech) score += 5;
+  if (b.onlineBeratung)      score += 4;
+  if (b.schnellantwort)      score += 3;
+  if (b.abendtermine)        score += 3;
+  if (b.beratungVorOrt)      score += 2;
+
+  // ── Profilqualität ─────────────────────────────────────────────────────────
+  if (b.beschreibung && b.beschreibung.length > 80) score += 5;
+  else if (b.beschreibung)                          score += 2;
+  if (b.tags.length > 0)                            score += 4;
+  if (b.mandantengruppen.length > 0)                score += 3;
+  if (b.logo)                                       score += 3;
+  if (b.avgRating != null)                          score += 3;
+  if (b.website)                                    score += 2;
+  if (b.email)                                      score += 1;
+  if (b.telefon)                                    score += 1;
+  if (b.languages.length > 1)                       score += 2; // Mehrsprachig
+  if (b.videoUrl)                                   score += 2;
+  if (b.zulassungsjahr)                             score += 1;
+  if (b.auszeichnungen.length > 0)                  score += 2;
+  if (b.verified)                                   score += 3;
+  if (b.kswMitglied)                                score += 1;
+
+  return score;
+}
 
 const EMPTY_FILTERS: FilterState = {
   nameSearch: "",
@@ -67,7 +110,10 @@ export default function BeraterListFilter({ berater, stadtSlug, stadtName }: Pro
 
   const allTags = useMemo(() => {
     const set = new Set<string>();
-    berater.forEach((b) => b.tags.forEach((t) => set.add(t)));
+    berater.forEach((b) => b.tags.forEach((t) => {
+      const norm = normalizeTag(t);
+      if (!EXCLUDED_TAGS.has(norm)) set.add(norm);
+    }));
     return Array.from(set).sort();
   }, [berater]);
 
@@ -89,7 +135,7 @@ export default function BeraterListFilter({ berater, stadtSlug, stadtName }: Pro
       );
     }
     if (filters.spezialisierung.length > 0) {
-      list = list.filter((b) => filters.spezialisierung.some((t) => b.tags.includes(t)));
+      list = list.filter((b) => filters.spezialisierung.some((t) => b.tags.map(normalizeTag).includes(t)));
     }
     if (filters.mandantengruppen.length > 0) {
       list = list.filter((b) => filters.mandantengruppen.some((m) => b.mandantengruppen.includes(m)));
@@ -131,9 +177,9 @@ export default function BeraterListFilter({ berater, stadtSlug, stadtName }: Pro
         break;
       default:
         sorted.sort((a, b) => {
-          const diff = PAKET_ORDER[a.paket] - PAKET_ORDER[b.paket];
-          if (diff !== 0) return diff;
-          return a.name.localeCompare(b.name, "de");
+          const paketDiff = PAKET_ORDER[a.paket] - PAKET_ORDER[b.paket];
+          if (paketDiff !== 0) return paketDiff;
+          return computeRelevanceScore(b) - computeRelevanceScore(a);
         });
     }
     return sorted;

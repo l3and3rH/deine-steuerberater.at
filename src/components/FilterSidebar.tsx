@@ -6,9 +6,7 @@ import { useState } from "react";
 const BERUFSBEZEICHNUNG_OPTIONS = [
   { value: "STEUERBERATER", label: "Steuerberater" },
   { value: "WIRTSCHAFTSPRUEFER", label: "Wirtschaftsprüfer" },
-  { value: "BEIDES", label: "Stb. & Wirtschaftsprüfer" },
-  { value: "BUCHHALTER", label: "Buchhalter" },
-  { value: "BILANZBUCHHALTER", label: "Bilanzbuchhalter" },
+  { value: "BEIDES", label: "Steuerberater & Wirtschaftsprüfer" },
 ];
 
 const MANDANTENGRUPPEN_OPTIONS = [
@@ -37,9 +35,7 @@ const RATING_OPTIONS = [
 const BEZEICHNUNG_LABEL: Record<string, string> = {
   STEUERBERATER: "Steuerberater",
   WIRTSCHAFTSPRUEFER: "Wirtschaftsprüfer",
-  BEIDES: "Stb. & Wirtschaftsprüfer",
-  BUCHHALTER: "Buchhalter",
-  BILANZBUCHHALTER: "Bilanzbuchhalter",
+  BEIDES: "Steuerberater & Wirtschaftsprüfer",
 };
 
 const SERVICE_LABEL: Record<string, string> = {
@@ -129,9 +125,9 @@ function FilterSection({
       </button>
       <div
         id={`filter-${id}`}
-        className="filter-section-body"
+        className="filter-section-body overflow-y-auto"
         data-open={String(isOpen)}
-        style={{ maxHeight: isOpen ? "24rem" : "0px" }}
+        style={{ maxHeight: isOpen ? "32rem" : "0px" }}
       >
         <div className="pb-3 space-y-1.5">{children}</div>
       </div>

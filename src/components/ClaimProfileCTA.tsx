@@ -1,8 +1,8 @@
 import Link from "next/link";
 
-export default function ClaimProfileCTA({ profileName }: { profileName: string }) {
+export default function ClaimProfileCTA({ profileName, className }: { profileName: string; className?: string }) {
   return (
-    <div className="bg-gold-500/10 border border-gold-500/20 rounded-xl p-5 mt-8">
+    <div className={`bg-gold-500/10 border border-gold-500/20 rounded-xl p-5 ${className ?? "mt-8"}`}>
       <div className="flex items-start gap-3">
         <div className="w-10 h-10 rounded-full bg-gold-500/20 flex items-center justify-center flex-shrink-0">
           <svg className="w-5 h-5 text-gold-600" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
